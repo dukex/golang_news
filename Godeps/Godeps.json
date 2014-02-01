@@ -1,0 +1,14 @@
+{
+	"ImportPath": "github.com/dukex/ideiasliberdade",
+	"GoVersion": "go1.2",
+	"Deps": [
+		{
+			"ImportPath": "github.com/haarts/go-pkg-rss",
+			"Rev": "49e91ffeee298b0655d148389bc4c7f32e8fc7a7"
+		},
+		{
+			"ImportPath": "github.com/jteeuwen/go-pkg-xmlx",
+			"Rev": "3623786eeb421657b11acad4aa1a9b89683c031f"
+		}
+	]
+}
