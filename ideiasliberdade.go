@@ -55,7 +55,7 @@ func itemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item) {
 		if len(short_title) > 100 {
 			short_title = short_title[:99] + "…"
 		}
-		PostTweet(short_title + " " + item.Links[0].Href + " " + TWEETS[ch.Links[0].Href])
+		PostTweet(short_title + " " + item.Links[0].Href)
 	}
 
 	genericItemHandler(feed, ch, newItems, f)
