@@ -5,11 +5,9 @@ import (
 	"github.com/ChimeraCoder/anaconda"
 	rss "github.com/haarts/go-pkg-rss"
 	"log"
-	//"net/url"
+	"net/http"
 	"net/url"
 	"os"
-
-	//"regexp"
 	"time"
 )
 
@@ -24,6 +22,7 @@ func main() {
 		"http://www.mises.org.br/RSSArticles.aspx?type=3&culture=pt",
 		"http://www.mises.org.br/RSSArticles.aspx?type=2&culture=pt",
 		"http://www.mises.org.br/RSSArticles.aspx?type=1&culture=pt",
+		"http://feeds.feedburner.com/BrunoGarschagen?format=xml",
 	}
 
 	TWEETS = map[string]string{
@@ -34,7 +33,13 @@ func main() {
 	for _, feed := range FEEDS {
 		go PollFeed(feed, itemHandler)
 	}
-	PollFeed("http://feeds.feedburner.com/BrunoGarschagen?format=xml", itemHandler)
+
+	http.HandleFunc("/", HomeHandler)
+	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+}
+
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Oi!")
 }
 
 func itemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item) {
