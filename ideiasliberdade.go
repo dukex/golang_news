@@ -14,11 +14,11 @@ import (
 const timeout = 50
 
 var first = map[string]bool{}
-
 var TWEETS map[string]string
+var FEEDS []string
 
 func main() {
-	FEEDS := []string{
+	FEEDS = []string{
 		"http://www.mises.org.br/RSSArticles.aspx?type=3&culture=pt",
 		"http://www.mises.org.br/RSSArticles.aspx?type=2&culture=pt",
 		"http://www.mises.org.br/RSSArticles.aspx?type=1&culture=pt",
@@ -30,25 +30,49 @@ func main() {
 		"http://www.libertarianismo.org/index.php/category/artigos/feed/",
 	}
 
-	for _, feed := range FEEDS {
-		go PollFeed(feed, itemHandler)
-	}
-
 	http.HandleFunc("/", HomeHandler)
 	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	for _, feed := range FEEDS {
+		go PollFeed(feed, itemHandler)
+	}
+
 	fmt.Fprintf(w, "Oi!")
+}
+
+func Exists(name string) bool {
+	if _, err := os.Stat(name); err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
+	}
+	return true
 }
 
 func itemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item) {
 	f := func(item *rss.Item) {
-		short_title := item.Title
-		if len(short_title) > 100 {
-			short_title = short_title[:99] + "…"
+		file := "/data/" + item.Key()
+		if !Exists(file) {
+			fo, err := os.Create(file)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				defer fo.Close()
+				buf := make([]byte, 1024)
+
+				if _, err = fo.Write(buf[:]); err != nil {
+					fmt.Println(err)
+				} else {
+					short_title := item.Title
+					if len(short_title) > 100 {
+						short_title = short_title[:99] + "…"
+					}
+					PostTweet(short_title + " " + item.Links[0].Href)
+				}
+			}
 		}
-		PostTweet(short_title + " " + item.Links[0].Href)
 	}
 
 	genericItemHandler(feed, ch, newItems, f)
@@ -57,14 +81,13 @@ func itemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item) {
 func PollFeed(uri string, itemHandler rss.ItemHandler) {
 	feed := rss.New(timeout, true, chanHandler, itemHandler)
 
-	for {
-		if err := feed.Fetch(uri, nil); err != nil {
-			fmt.Fprintf(os.Stderr, "[e] %s: %s", uri, err)
-			return
-		}
-
-		<-time.After(time.Duration(feed.SecondsTillUpdate() * 1e9))
+	if err := feed.Fetch(uri, nil); err != nil {
+		fmt.Fprintf(os.Stderr, "[e] %s: %s", uri, err)
+		return
 	}
+
+	<-time.After(time.Duration(feed.SecondsTillUpdate() * 1e9))
+
 }
 
 func chanHandler(feed *rss.Feed, newchannels []*rss.Channel) {
