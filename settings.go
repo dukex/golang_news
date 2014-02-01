@@ -1,10 +1,6 @@
 package main
 
-import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-)
+import "os"
 
 func ReadConsumerKey() string {
 	return os.Getenv("ConsumerKey")

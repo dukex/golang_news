@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
-	// "github.com/ChimeraCoder/anaconda"
+	"github.com/ChimeraCoder/anaconda"
 	rss "github.com/haarts/go-pkg-rss"
 	"log"
 	//"net/url"
+	"net/url"
 	"os"
+
 	//"regexp"
 	"time"
 )
@@ -41,7 +43,7 @@ func itemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item) {
 		if len(short_title) > 100 {
 			short_title = short_title[:99] + "…"
 		}
-		PostTweet(short_title + " " + item.Links[0].Href + " " + TWEETS[ch.Links[0].Href])
+		PostTweet(short_title + " " + item.Links[0].Href + " ") // + TWEETS[ch.Links[0].Href])
 	}
 
 	genericItemHandler(feed, ch, newItems, f)
@@ -72,14 +74,14 @@ func genericItemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item, i
 }
 
 func PostTweet(tweet string) {
-	//anaconda.SetConsumerKey(ReadConsumerKey())
-	//anaconda.SetConsumerSecret(ReadConsumerSecret())
-	//api := anaconda.NewTwitterApi(ReadAccessToken(), ReadAccessTokenSecret())
+	anaconda.SetConsumerKey(ReadConsumerKey())
+	anaconda.SetConsumerSecret(ReadConsumerSecret())
+	api := anaconda.NewTwitterApi(ReadAccessToken(), ReadAccessTokenSecret())
 
-	//v := url.Values{}
-	//_, err := api.PostTweet(tweet, v)
-	//if err != nil {
-	//  log.Printf("Error posting tweet: %s", err)
-	//}
+	v := url.Values{}
+	_, err := api.PostTweet(tweet, v)
+	if err != nil {
+		log.Printf("Error posting tweet: %s", err)
+	}
 	fmt.Println(tweet)
 }
