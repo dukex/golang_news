@@ -79,7 +79,10 @@ func itemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item) {
 					if len(short_title) > 100 {
 						short_title = short_title[:99] + "…"
 					}
-					PostTweet(short_title + " " + item.Links[0].Href)
+					err = PostTweet(short_title + " " + item.Links[0].Href)
+					if err != nil {
+						os.Remove(file)
+					}
 				}
 			}
 		}
@@ -111,7 +114,7 @@ func genericItemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item, i
 	}
 }
 
-func PostTweet(tweet string) {
+func PostTweet(tweet string) error {
 	anaconda.SetConsumerKey(ReadConsumerKey())
 	anaconda.SetConsumerSecret(ReadConsumerSecret())
 	api := anaconda.NewTwitterApi(ReadAccessToken(), ReadAccessTokenSecret())
@@ -121,5 +124,5 @@ func PostTweet(tweet string) {
 	if err != nil {
 		log.Printf("Error posting tweet: %s", err)
 	}
-	fmt.Println(tweet)
+	return err
 }
