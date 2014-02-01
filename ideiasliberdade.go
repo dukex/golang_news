@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"github.com/ChimeraCoder/anaconda"
 	rss "github.com/haarts/go-pkg-rss"
@@ -51,19 +53,25 @@ func Exists(name string) bool {
 	return true
 }
 
+func GetMD5Hash(text string) string {
+	hasher := md5.New()
+	hasher.Write([]byte(text))
+	return hex.EncodeToString(hasher.Sum(nil))
+}
+
 func itemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item) {
 	f := func(item *rss.Item) {
-		file := "/data/" + item.Key()
+		file := GetMD5Hash("data/" + item.Key())
 		if !Exists(file) {
 			fo, err := os.Create(file)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Println("CREATE ERROR", err)
 			} else {
 				defer fo.Close()
 				buf := make([]byte, 1024)
 
 				if _, err = fo.Write(buf[:]); err != nil {
-					fmt.Println(err)
+					fmt.Println("WRITE ERROR:", err)
 				} else {
 					short_title := item.Title
 					if len(short_title) > 100 {
