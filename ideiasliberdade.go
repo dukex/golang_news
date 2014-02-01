@@ -28,6 +28,7 @@ func main() {
 		"http://maovisivel.blogspot.com/feeds/posts/default",
 		"http://www.liberdade.cc/feed",
 		"http://ordemlivre.org/feed/blogs",
+		"http://epl.org.br/feed/",
 		"http://ordemlivre.org/feed/artigos",
 		"http://www.libertarianismo.org/index.php/category/artigos/feed/",
 	}
