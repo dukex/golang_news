@@ -2,10 +2,18 @@ package main
 
 import (
 	"fmt"
-	rss "github.com/jteeuwen/go-pkg-rss"
+	// "github.com/ChimeraCoder/anaconda"
+	rss "github.com/haarts/go-pkg-rss"
+	"log"
+	//"net/url"
 	"os"
+	//"regexp"
 	"time"
 )
+
+const timeout = 50
+
+var first = map[string]bool{}
 
 var TWEETS map[string]string
 
@@ -22,12 +30,24 @@ func main() {
 	}
 
 	for _, feed := range FEEDS {
-		go PollFeed(feed, 5)
+		go PollFeed(feed, itemHandler)
 	}
-	PollFeed("http://feeds.feedburner.com/BrunoGarschagen?format=xml", 5)
+	PollFeed("http://feeds.feedburner.com/BrunoGarschagen?format=xml", itemHandler)
 }
 
-func PollFeed(uri string, timeout int) {
+func itemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item) {
+	f := func(item *rss.Item) {
+		short_title := item.Title
+		if len(short_title) > 100 {
+			short_title = short_title[:99] + "…"
+		}
+		PostTweet(short_title + " " + item.Links[0].Href + " " + TWEETS[ch.Links[0].Href])
+	}
+
+	genericItemHandler(feed, ch, newItems, f)
+}
+
+func PollFeed(uri string, itemHandler rss.ItemHandler) {
 	feed := rss.New(timeout, true, chanHandler, itemHandler)
 
 	for {
@@ -41,15 +61,13 @@ func PollFeed(uri string, timeout int) {
 }
 
 func chanHandler(feed *rss.Feed, newchannels []*rss.Channel) {
+	//noop
 }
 
-func itemHandler(feed *rss.Feed, ch *rss.Channel, items []*rss.Item) {
-	for _, item := range items {
-		short_title := item.Title
-		if len(short_title) > 100 {
-			short_title = short_title[:99] + "…"
-		}
-		PostTweet(short_title + " " + item.Links[0].Href + " " + TWEETS[ch.Links[0].Href])
+func genericItemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item, individualItemHandler func(*rss.Item)) {
+	log.Printf("%d new item(s) in %s\n", len(newItems), feed.Url)
+	for _, item := range newItems {
+		individualItemHandler(item)
 	}
 }
 
@@ -64,5 +82,4 @@ func PostTweet(tweet string) {
 	//  log.Printf("Error posting tweet: %s", err)
 	//}
 	fmt.Println(tweet)
-	fmt.Println("")
 }
