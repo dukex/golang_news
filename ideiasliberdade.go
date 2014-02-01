@@ -23,11 +23,18 @@ func main() {
 		"http://www.mises.org.br/RSSArticles.aspx?type=2&culture=pt",
 		"http://www.mises.org.br/RSSArticles.aspx?type=1&culture=pt",
 		"http://feeds.feedburner.com/BrunoGarschagen?format=xml",
+		"http://maovisivel.blogspot.com/feeds/posts/default",
+		"http://www.liberdade.cc/feed",
+		"http://ordemlivre.org/feed/blogs",
+		"http://ordemlivre.org/feed/artigos",
 	}
 
 	TWEETS = map[string]string{
-		"http://www.brunogarschagen.com/":      "@BrunoGarschagen",
-		"http://www.mises.org.br/Default.aspx": "@mises_brasil",
+		"http://www.brunogarschagen.com/":                    "@BrunoGarschagen",
+		"http://www.mises.org.br/Default.aspx":               "@mises_brasil",
+		"http://maovisivel.blogspot.com/feeds/posts/default": "@AlexSchwartsman",
+		"http://www.liberdade.cc":                            "@liberdadebra",
+		"http://ordemlivre.org":                              "@OrdemLivre",
 	}
 
 	for _, feed := range FEEDS {
