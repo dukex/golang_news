@@ -27,14 +27,7 @@ func main() {
 		"http://www.liberdade.cc/feed",
 		"http://ordemlivre.org/feed/blogs",
 		"http://ordemlivre.org/feed/artigos",
-	}
-
-	TWEETS = map[string]string{
-		"http://www.brunogarschagen.com/":                    "@BrunoGarschagen",
-		"http://www.mises.org.br/Default.aspx":               "@mises_brasil",
-		"http://maovisivel.blogspot.com/feeds/posts/default": "@AlexSchwartsman",
-		"http://www.liberdade.cc":                            "@liberdadebra",
-		"http://ordemlivre.org":                              "@OrdemLivre",
+		"http://www.libertarianismo.org/index.php/category/artigos/feed/",
 	}
 
 	for _, feed := range FEEDS {
