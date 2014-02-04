@@ -32,6 +32,7 @@ func main() {
 		"http://feeds.feedburner.com/org/hetj?format=xml",
 		"http://ordemlivre.org/feed/artigos",
 		"http://www.libertarianismo.org/index.php/category/artigos/feed/",
+		"http://www.institutoliberal.org.br/blog/feed/",
 	}
 
 	http.HandleFunc("/", HomeHandler)
