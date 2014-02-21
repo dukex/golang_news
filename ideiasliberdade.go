@@ -11,13 +11,17 @@ import (
 	"net/url"
 	"os"
 	"time"
+  "github.com/dukex/squeue"
 )
 
 const timeout = 50
 
-var first = map[string]bool{}
-var TWEETS map[string]string
-var FEEDS []string
+var (
+  first = map[string]bool{}
+  TWEETS map[string]string
+  FEEDS []string
+  QUEUE *squeue.Queue
+)
 
 func main() {
 	FEEDS = []string{
@@ -34,6 +38,9 @@ func main() {
 		"http://www.libertarianismo.org/index.php/category/artigos/feed/",
 		"http://www.institutoliberal.org.br/blog/feed/",
 	}
+
+  QUEUE = squeue.NewQueue(1 * time.Minute)
+  QUEUE.Run()
 
 	http.HandleFunc("/", HomeHandler)
 	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
@@ -111,7 +118,9 @@ func chanHandler(feed *rss.Feed, newchannels []*rss.Channel) {
 func genericItemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item, individualItemHandler func(*rss.Item)) {
 	log.Printf("%d new item(s) in %s\n", len(newItems), feed.Url)
 	for _, item := range newItems {
-		individualItemHandler(item)
+    QUEUE.Push(func() {
+      individualItemHandler(item)
+    })
 	}
 }
 
