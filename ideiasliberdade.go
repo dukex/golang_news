@@ -12,11 +12,14 @@ import (
 	"github.com/dukex/buffer"
 	"github.com/dukex/squeue"
 	rss "github.com/haarts/go-pkg-rss"
+	"github.com/jinzhu/gorm"
+	pq "github.com/lib/pq"
 )
 
 const timeout = 50
 
 var (
+	database gorm.DB
 	first    = map[string]bool{}
 	TWEETS   map[string]string
 	FEEDS    []string
@@ -24,6 +27,23 @@ var (
 	BUFFER   *buffer.Client
 	PROFILES []string
 )
+
+type Post struct {
+	Id    int64
+	Key   string `sql:"not null;unique"`
+	Title string `sql:"not null"`
+	Link  string
+}
+
+func (p *Post) AfterSave() (err error) {
+	QUEUE.Push(func() {
+		text := p.Title + " " + p.Link
+		BUFFER.CreateUpdate(text, PROFILES, map[string]interface{}{
+			"now": true,
+		})
+	})
+	return
+}
 
 func main() {
 	FEEDS = []string{
@@ -40,6 +60,12 @@ func main() {
 		"http://www.libertarianismo.org/index.php/category/artigos/feed/",
 		"http://www.institutoliberal.org.br/blog/feed/",
 	}
+
+	databaseUrl, _ := pq.ParseURL(os.Getenv("DATABASE_URL"))
+	database, _ = gorm.Open("postgres", databaseUrl)
+	database.LogMode(os.Getenv("DEBUG") == "true")
+
+	database.AutoMigrate(Post{})
 
 	BUFFER = buffer.NewClient(os.Getenv("BUFFER_TOKEN"))
 	PROFILES = make([]string, 0)
@@ -62,15 +88,6 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Oi!")
 }
 
-func Exists(name string) bool {
-	if _, err := os.Stat(name); err != nil {
-		if os.IsNotExist(err) {
-			return false
-		}
-	}
-	return true
-}
-
 func GetMD5Hash(text string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(text))
@@ -79,36 +96,14 @@ func GetMD5Hash(text string) string {
 
 func itemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item) {
 	f := func(item *rss.Item) {
-		file := GetMD5Hash("data/" + item.Key())
-		root_on_heroku := "/apps/data/"
-
-		if !Exists(root_on_heroku + file) {
-			fo, err := os.Create(root_on_heroku + file)
-			if err != nil {
-				fmt.Println("CREATE ERROR", err)
-			} else {
-				defer fo.Close()
-				buf := make([]byte, 1024)
-
-				if _, err = fo.Write(buf[:]); err != nil {
-					fmt.Println("WRITE ERROR:", err)
-				} else {
-					short_title := item.Title
-					if len(short_title) > 100 {
-						short_title = short_title[:99] + "…"
-					}
-
-					QUEUE.Push(func() {
-						text := short_title + " " + item.Links[0].Href
-						BUFFER.CreateUpdate(text, PROFILES, map[string]interface{}{
-							"now": true,
-						})
-
-						os.Remove(root_on_heroku + file)
-					})
-				}
-			}
+		key := GetMD5Hash("item-" + item.Key())
+		short_title := item.Title
+		if len(short_title) > 100 {
+			short_title = short_title[:99] + "…"
 		}
+
+		var post Post
+		database.Table("posts").Where("key = ?", key).Attrs(Post{Title: short_title, Link: item.Links[0].Href}).FirstOrCreate(&post)
 	}
 
 	genericItemHandler(feed, ch, newItems, f)

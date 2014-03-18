@@ -15,8 +15,16 @@
 			"Rev": "49e91ffeee298b0655d148389bc4c7f32e8fc7a7"
 		},
 		{
+			"ImportPath": "github.com/jinzhu/gorm",
+			"Rev": "71e7b37bdfd69432e00565a7483a3788fdc20eb7"
+		},
+		{
 			"ImportPath": "github.com/jteeuwen/go-pkg-xmlx",
 			"Rev": "3623786eeb421657b11acad4aa1a9b89683c031f"
+		},
+		{
+			"ImportPath": "github.com/lib/pq",
+			"Rev": "6c54219055243614d4eaffea55917c15bea2ba2f"
 		}
 	]
 }
