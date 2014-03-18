@@ -51,7 +51,7 @@ func main() {
 		"http://www.mises.org.br/RSSArticles.aspx?type=2&culture=pt",
 		"http://www.mises.org.br/RSSArticles.aspx?type=1&culture=pt",
 		"http://feeds.feedburner.com/BrunoGarschagen?format=xml",
-		"http://maovisivel.blogspot.com/feeds/posts/default",
+		"http://maovisivel.blogspot.com/feeds/posts/default?alt=rss",
 		"http://www.liberdade.cc/feed",
 		"http://ordemlivre.org/feed/blogs",
 		"http://epl.org.br/feed/",
