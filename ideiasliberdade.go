@@ -102,8 +102,14 @@ func itemHandler(feed *rss.Feed, ch *rss.Channel, newItems []*rss.Item) {
 			short_title = short_title[:99] + "…"
 		}
 
-		var post Post
-		database.Table("posts").Where("key = ?", key).Attrs(Post{Title: short_title, Link: item.Links[0].Href}).FirstOrCreate(&post)
+		err := database.Table("posts").Where("key = ?", key).Scan(&Post{}).Error
+		if err == gorm.RecordNotFound {
+			var post Post
+			post.Title = short_title
+			post.Key = key
+			post.Link = item.Links[0].Href
+			database.Save(&post)
+		}
 	}
 
 	genericItemHandler(feed, ch, newItems, f)
