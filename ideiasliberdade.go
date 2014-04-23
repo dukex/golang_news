@@ -59,6 +59,7 @@ func main() {
 		"http://ordemlivre.org/feed/artigos",
 		"http://www.libertarianismo.org/index.php/category/artigos/feed/",
 		"http://www.institutoliberal.org.br/blog/feed/",
+		"http://liberzone.com.br/feed/",
 	}
 
 	databaseUrl, _ := pq.ParseURL(os.Getenv("DATABASE_URL"))
