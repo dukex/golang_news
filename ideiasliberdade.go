@@ -62,6 +62,7 @@ func main() {
 		"http://liberzone.com.br/feed/",
 		"http://gdata.youtube.com/feeds/api/users/UCou8RLI69bMShhe_ziija-Q/uploads", // Talk Show com Evandro Sinotti
 		"http://www.clubemissrand.com/1/feed",
+		"http://spotniks.com/feed/",
 	}
 
 	databaseUrl, _ := pq.ParseURL(os.Getenv("DATABASE_URL"))
